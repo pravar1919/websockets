@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hello Web Socktes from channels</h1>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:8000/ws/as/")
+
+        ws.onopen = function (e) {
+            console.log("The connection was setup successfully !", e);
+            ws.send(JSON.stringify({user_id : "{{request.user.id}}", "status":"online"}));
+        };
+        window.addEventListener('beforeunload', function () {
+            ws.send(JSON.stringify({user_id : "{{request.user.id}}", "status":"offline"}));
+        });
+        ws.onclose = function (e) {
+            console.log("Something unexpected happened !", e);
+        };
+        ws.onmessage = function (e) {
+            // const data = JSON.parse(e.data);
+            console.log(e);
+        };
+    </script>
+</body>
+</html>

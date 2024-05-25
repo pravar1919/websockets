@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <ul>
+        {% for obj in obj %}
+            <li>{{obj}} - <span id="status_{{obj.id}}">{{obj.status}}</span></li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        const ws1 = new WebSocket('ws://localhost:8000/ws/as/status')
+
+        ws1.onopen = function (e) {
+            console.log("The connection was setup successfully !", e);
+            ws1.send(JSON.stringify({"message":"success"}));
+        };
+        ws1.onclose = function (e) {
+            console.log("Something unexpected happened !", e);
+        };
+        setInterval(()=>{
+            ws1.send(JSON.stringify({"message":"success"}));
+        }, 5000)
+        ws1.onmessage = function (e) {
+            let data = JSON.parse(e.data);
+            data.map((u)=>{
+                let doc = document.getElementById(`status_${u.pk}`)
+                doc.innerHTML = u.fields.status
+            })
+            console.log(data);
+        };
+    </script>
+</body>
+</html>
