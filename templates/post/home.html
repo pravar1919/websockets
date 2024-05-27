@@ -35,7 +35,7 @@
         element.addEventListener("click",async function(){
             let post_id = this.getAttribute("data-id")
             var likeDisplay = document.getElementById(`like_message_${post_id}`)
-            likeDisplay.setAttribute("id", `like_message_${post_id}`)
+            // likeDisplay.setAttribute("id", `like_message_${post_id}`)
             console.log("clicked", );
             const response = await fetch(
                 "/like/", 
@@ -50,19 +50,23 @@
                 console.log(liked_obj);
                 let note = ""
                 if (liked_obj.are_likes){
-                    if (liked_obj.get_last_liked_name){
-                        if ("{{request.user.username}}" == liked_obj.get_last_liked_name){
-                            note += "You"
+                        if (liked_obj.get_last_liked_name){
+                            if ("{{request.user.username}}" == liked_obj.get_last_liked_name){
+                                note += "You"
+                            }
+                        else{
+                            note += liked_obj.get_last_liked_name
                         }
-                    else{
-                        note += liked_obj.get_last_liked_name
                     }
                 }       
                 if (liked_obj.get_likes){
                     note += ` and ${liked_obj.get_likes} more`
                 }
-                note += " liked this post."
+                if (liked_obj.are_likes){
+                    note += " liked this post."
+                }
                 likeDisplay.innerHTML = note
+                console.log("*****", note);
                 if (liked_obj.message == "Liked"){
                     this.innerHTML = "Unlike"
                 }else{
@@ -71,7 +75,7 @@
 
             }
             
-        }})
+        })
         
     }
 </script>
