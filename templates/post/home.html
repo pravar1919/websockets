@@ -5,15 +5,21 @@
 {% for post in obj %}
 <li>
     <p>{{post.message}} by- <strong>{{post.user|title}}</strong></p>
-    {% if post.are_likes %}
-        {% if post.get_last_liked_name %}
-            {% if request.user.username == post.get_last_liked_name %}
-                You 
-            {% else %}
-            {{post.get_last_liked_name}}{% endif %}
+    <p id="like_message_{{post.id}}">
+        {% if post.are_likes %}
+            {% if post.get_last_liked_name %}
+                {% if request.user.username == post.get_last_liked_name %}
+                    You 
+                {% else %}
+                {{post.get_last_liked_name}}{% endif %}
+            {% endif %}
+            {% if post.get_likes %}
+            and 
+            {{post.get_likes}} 
+            more 
+            {% endif %} liked this post.
         {% endif %}
-        {% if post.get_likes %}and {{post.get_likes}} more {% endif %} liked this post.
-    {% endif %}
+    </p>
     {% if request.user in post.like.all %}
     <a href="javascript:void(0)" class="update-like" data-id="{{post.id}}">Unlike</a>
     {% else %}
@@ -27,18 +33,45 @@
     for (let index = 0; index < likeBtn.length; index++) {
         const element = likeBtn[index];
         element.addEventListener("click",async function(){
-            console.log("clicked", this.getAttribute("data-id"));
+            let post_id = this.getAttribute("data-id")
+            var likeDisplay = document.getElementById(`like_message_${post_id}`)
+            likeDisplay.setAttribute("id", `like_message_${post_id}`)
+            console.log("clicked", );
             const response = await fetch(
                 "/like/", 
                 {
                     "method":"POST", 
                     "headers":{"X-CSRFToken":"{{csrf_token}}"}, 
-                    "body":JSON.stringify({"post_id":this.getAttribute("data-id")})
+                    "body":JSON.stringify({"post_id":post_id})
                 }
             )
-            const liked_obj = await response.json();
-            console.log(liked_obj);
-        })
+            if (response.ok){
+                const liked_obj = await response.json();
+                console.log(liked_obj);
+                let note = ""
+                if (liked_obj.are_likes){
+                    if (liked_obj.get_last_liked_name){
+                        if ("{{request.user.username}}" == liked_obj.get_last_liked_name){
+                            note += "You"
+                        }
+                    else{
+                        note += liked_obj.get_last_liked_name
+                    }
+                }       
+                if (liked_obj.get_likes){
+                    note += ` and ${liked_obj.get_likes} more`
+                }
+                note += " liked this post."
+                likeDisplay.innerHTML = note
+                if (liked_obj.message == "Liked"){
+                    this.innerHTML = "Unlike"
+                }else{
+                    this.innerHTML = "Like"
+                }
+
+            }
+            
+        }})
         
     }
 </script>

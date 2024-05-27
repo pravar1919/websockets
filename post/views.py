@@ -17,8 +17,18 @@ def add_remove_like(request):
     data = json.loads(request.body)
     obj, created = LikedPost.objects.get_or_create(
         post_id=data["post_id"], user=request.user)
-    print(obj)
     if not created:
         obj.delete()
-        return JsonResponse({"message": "Like removed"})
-    return JsonResponse({"message": "Liked"})
+        post_obj = Post.objects.get(id=data["post_id"])
+        context = {
+            "are_likes": post_obj.are_likes,
+            "get_last_liked_name": post_obj.get_last_liked_name,
+            "get_likes": post_obj.get_likes
+        }
+        return JsonResponse({"message": "Like removed", **context})
+
+    return JsonResponse({"message": "Liked",
+                         "are_likes": obj.post.are_likes,
+                         "get_last_liked_name": obj.post.get_last_liked_name,
+                         "get_likes": obj.post.get_likes
+                         })
