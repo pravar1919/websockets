@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 # Create your models here.
 
@@ -38,3 +40,12 @@ class LikedPost(models.Model):
                              related_name="liked_posts", on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs) -> None:
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "user-like-post-notification",
+            {"type": "like.message", "text": {
+                "post_id": self.post.id, "user": self.user.username}},
+        )
+        return super(LikedPost, self).save(*args, **kwargs)

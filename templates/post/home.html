@@ -1,33 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>{{request.user.username|title}}</h1>
-<ul>
-{% for post in obj %}
-<li>
-    <p>{{post.message}} by- <strong>{{post.user|title}}</strong></p>
-    <p id="like_message_{{post.id}}">
-        {% if post.are_likes %}
-            {% if post.get_last_liked_name %}
-                {% if request.user.username == post.get_last_liked_name %}
-                    You 
-                {% else %}
-                {{post.get_last_liked_name}}{% endif %}
+<div class="mt-14 flex flex-col items-center">
+<h1 class="text-4xl">{{request.user.username|title}}</h1>
+<ul class="">
+    {% for post in obj %}
+    <li class="border border-2 shadow mb-2 text-center p-5">
+        <p>{{post.message}} by- <strong>{{post.user|title}}</strong></p>
+        <p id="like_message_{{post.id}}">
+            {% if post.are_likes %}
+                {% if post.get_last_liked_name %}
+                    {% if request.user.username == post.get_last_liked_name %}
+                        You 
+                    {% else %}
+                    {{post.get_last_liked_name}}{% endif %}
+                {% endif %}
+                {% if post.get_likes %}
+                and 
+                {{post.get_likes}} 
+                more 
+                {% endif %} liked this post.
             {% endif %}
-            {% if post.get_likes %}
-            and 
-            {{post.get_likes}} 
-            more 
-            {% endif %} liked this post.
+        </p>
+        {% if request.user in post.like.all %}
+        <a href="javascript:void(0)" class="mt-5 update-like text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" data-id="{{post.id}}">Unlike</a>
+        {% else %}
+        <a href="javascript:void(0)" class="update-like" data-id="{{post.id}}">Like</a>
         {% endif %}
-    </p>
-    {% if request.user in post.like.all %}
-    <a href="javascript:void(0)" class="update-like" data-id="{{post.id}}">Unlike</a>
-    {% else %}
-    <a href="javascript:void(0)" class="update-like" data-id="{{post.id}}">Like</a>
-    {% endif %}
-</li>
-{% endfor %}
+    </li>
+    {% endfor %}
 </ul>
+</div>
 <script>
     const likeBtn = document.querySelectorAll(".update-like")
     for (let index = 0; index < likeBtn.length; index++) {
@@ -78,5 +80,24 @@
         })
         
     }
+</script>
+<script>
+    const ws1 = new WebSocket('ws://localhost:8000/ws/as/post-like/')
+
+    ws1.onopen = function (e) {
+        console.log("The connection was setup successfully !", e);
+        // ws1.send(JSON.stringify({"message":"success"}));
+    };
+    ws1.onclose = function (e) {
+        console.log("Something unexpected happened !", e);
+    };
+    ws1.onmessage = function (e) {
+        let data = JSON.parse(e.data);
+        console.log("<><><><><>", data);
+        if ("{{request.user.username}}" !== data.text.user){
+            let notiBlock = document.getElementById("notification")
+            notiBlock.innerHTML = `${data.text.user} liked your post.`
+        }
+    };
 </script>
 {% endblock %}

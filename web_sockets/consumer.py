@@ -2,7 +2,6 @@ from channels.consumer import AsyncConsumer
 import json
 from channels.db import database_sync_to_async
 from web_sockets.models import User
-from django.core import serializers
 
 
 class EchoConsumer(AsyncConsumer):
