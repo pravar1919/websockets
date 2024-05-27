@@ -3,7 +3,43 @@
 <h1>{{request.user.username|title}}</h1>
 <ul>
 {% for post in obj %}
-<li>{{post.message}} - {{post.user}} <a href="">Like</a></li>
+<li>
+    <p>{{post.message}} by- <strong>{{post.user|title}}</strong></p>
+    {% if post.are_likes %}
+        {% if post.get_last_liked_name %}
+            {% if request.user.username == post.get_last_liked_name %}
+                You 
+            {% else %}
+            {{post.get_last_liked_name}}{% endif %}
+        {% endif %}
+        {% if post.get_likes %}and {{post.get_likes}} more {% endif %} liked this post.
+    {% endif %}
+    {% if request.user in post.like.all %}
+    <a href="javascript:void(0)" class="update-like" data-id="{{post.id}}">Unlike</a>
+    {% else %}
+    <a href="javascript:void(0)" class="update-like" data-id="{{post.id}}">Like</a>
+    {% endif %}
+</li>
 {% endfor %}
 </ul>
+<script>
+    const likeBtn = document.querySelectorAll(".update-like")
+    for (let index = 0; index < likeBtn.length; index++) {
+        const element = likeBtn[index];
+        element.addEventListener("click",async function(){
+            console.log("clicked", this.getAttribute("data-id"));
+            const response = await fetch(
+                "/like/", 
+                {
+                    "method":"POST", 
+                    "headers":{"X-CSRFToken":"{{csrf_token}}"}, 
+                    "body":JSON.stringify({"post_id":this.getAttribute("data-id")})
+                }
+            )
+            const liked_obj = await response.json();
+            console.log(liked_obj);
+        })
+        
+    }
+</script>
 {% endblock %}
