@@ -42,10 +42,11 @@ class LikedPost(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs) -> None:
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "user-like-post-notification",
-            {"type": "like.message", "text": {
-                "post_id": self.post.id, "user": self.user.username}},
-        )
+        if self.user != self.post.user:
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "user-like-post-notification",
+                {"type": "like.message", "text": {
+                    "post_id": self.post.id, "user": self.user.username}},
+            )
         return super(LikedPost, self).save(*args, **kwargs)
