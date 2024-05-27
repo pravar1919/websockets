@@ -7,11 +7,99 @@
     <title>Document</title>
 </head>
 <body>
-    {% include 'flowbyte.html' %}
+    {% include 'navbar.html' %}
     <p id="notification"></p>
     <div class="mt-20">
         {% block content %}
         {% endblock %}
     </div>
+    <script>
+        const likeBtn = document.querySelectorAll(".update-like")
+        for (let index = 0; index < likeBtn.length; index++) {
+            const element = likeBtn[index];
+            element.addEventListener("click",async function(){
+                let post_id = this.getAttribute("data-id")
+                var likeDisplay = document.getElementById(`like_message_${post_id}`)
+                // likeDisplay.setAttribute("id", `like_message_${post_id}`)
+                console.log("clicked", );
+                const response = await fetch(
+                    "/like/", 
+                    {
+                        "method":"POST", 
+                        "headers":{"X-CSRFToken":"{{csrf_token}}"}, 
+                        "body":JSON.stringify({"post_id":post_id})
+                    }
+                )
+                if (response.ok){
+                    const liked_obj = await response.json();
+                    console.log(liked_obj);
+                    let note = ""
+                    if (liked_obj.are_likes){
+                            if (liked_obj.get_last_liked_name){
+                                if ("{{request.user.username}}" == liked_obj.get_last_liked_name){
+                                    note += "You"
+                                }
+                            else{
+                                note += liked_obj.get_last_liked_name
+                            }
+                        }
+                    }       
+                    if (liked_obj.get_likes){
+                        note += ` and ${liked_obj.get_likes} more`
+                    }
+                    if (liked_obj.are_likes){
+                        note += " liked this post."
+                    }
+                    likeDisplay.innerHTML = note
+                    console.log("*****", note);
+                    if (liked_obj.message == "Liked"){
+                        this.innerHTML = "Unlike"
+                    }else{
+                        this.innerHTML = "Like"
+                    }
+    
+                }
+                
+            })
+            
+        }
+    </script>
+    <script>
+        const wspost = new WebSocket('ws://localhost:8000/ws/as/post-like/')
+    
+        wspost.onopen = function (e) {
+            console.log("The connection was setup successfully !", e);
+            // wspost.send(JSON.stringify({"message":"success"}));
+        };
+        wspost.onclose = function (e) {
+            console.log("Something unexpected happened !", e);
+        };
+        wspost.onmessage = function (e) {
+            let data = JSON.parse(e.data);
+            console.log("<><><><><>", data);
+            if ("{{request.user.username}}" !== data.text.user){
+                let notiBlock = document.getElementById("notification")
+                notiBlock.innerHTML = `${data.text.user} liked your post.`
+            }
+        };
+    </script>
+    <script>
+        const ws = new WebSocket("ws://localhost:8000/ws/as/")
+
+        ws.onopen = function (e) {
+            console.log("The connection was setup successfully !", e);
+            ws.send(JSON.stringify({user_id : "{{request.user.id}}", "status":"online"}));
+        };
+        window.addEventListener('beforeunload', function () {
+            ws.send(JSON.stringify({user_id : "{{request.user.id}}", "status":"offline"}));
+        });
+        ws.onclose = function (e) {
+            console.log("Something unexpected happened !", e);
+        };
+        ws.onmessage = function (e) {
+            // const data = JSON.parse(e.data);
+            console.log(e);
+        };
+    </script>
 </body>
 </html>

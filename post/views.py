@@ -13,6 +13,11 @@ def home(request):
     return render(request, "post/home.html", context)
 
 
+def post_detail(request):
+    context = {}
+    return render(request, "post/post-detail.html", context)
+
+
 def add_remove_like(request):
     data = json.loads(request.body)
     obj, created = LikedPost.objects.get_or_create(
