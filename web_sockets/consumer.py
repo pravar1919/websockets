@@ -8,7 +8,6 @@ from django.core import serializers
 class EchoConsumer(AsyncConsumer):
     @database_sync_to_async
     def set_user_status(self, user):
-        print("**********", user)
         user_obj = User.objects.get(id=user['user_id'])
         user_obj.status = user['status']
         user_obj.save()
@@ -33,26 +32,29 @@ class EchoConsumer(AsyncConsumer):
 
 
 class UserStatus(AsyncConsumer):
-    @database_sync_to_async
-    def get_user_status(self):
-        print(">>>>>>>>>>>>>>>", )
-        return serializers.serialize('json',
-                                     User.objects.all())
-
     async def websocket_connect(self, event):
+        await self.channel_layer.group_add(
+            "user-status-notification",
+            self.channel_name
+        )
         await self.send({
             "type": "websocket.accept",
         })
 
     async def websocket_receive(self, event):
         print("on message....")
-        # user_id = json.loads(event['text'])
-        users = await self.get_user_status()
-        print("************", users)
-        await self.send({
-            "type": "websocket.send",
-            "text": users,
-        })
+        print("************", event)
+        await self.channel_layer.group_send(
+            "user-status-notification",
+            {
+                "type": "chat.message",
+                "message": event,
+            }
+        )
+
+    async def chat_message(self, event):
+        print("event..................", event)
+        await self.send({"type": "websocket.send",  "text": json.dumps(event)})
 
     async def websocket_disconnect(self, event):
-        pass
+        await self.channel_layer.group_discard("user-status-notification", self.channel_name)

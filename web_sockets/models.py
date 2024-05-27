@@ -1,6 +1,9 @@
+from typing import Iterable
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 # Create your models here.
 
 
@@ -11,3 +14,12 @@ class User(AbstractUser):
 
     status = models.CharField(
         max_length=20, choices=Status, default=Status.OFFLINE)
+
+    def save(self, *args, **kwargs) -> None:
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "user-status-notification",
+            {"type": "chat.message", "text": {
+                "id": self.id, "status": self.status}},
+        )
+        return super(User, self).save(*args, **kwargs)
