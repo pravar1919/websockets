@@ -19,7 +19,7 @@ class User(AbstractUser):
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             "user-status-notification",
-            {"type": "chat.message", "text": {
+            {"type": "noti.message", "text": {
                 "id": self.id, "status": self.status}},
         )
         return super(User, self).save(*args, **kwargs)

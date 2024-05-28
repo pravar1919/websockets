@@ -46,12 +46,12 @@ class UserStatus(AsyncConsumer):
         await self.channel_layer.group_send(
             "user-status-notification",
             {
-                "type": "chat.message",
+                "type": "noti.message",
                 "message": event,
             }
         )
 
-    async def chat_message(self, event):
+    async def noti_message(self, event):
         print("event..................", event)
         await self.send({"type": "websocket.send",  "text": json.dumps(event)})
 
