@@ -1,6 +1,7 @@
+from django.http import JsonResponse
 from django.shortcuts import render
 
-from web_sockets.models import User
+from web_sockets.models import Friends, User
 
 # Create your views here.
 
@@ -16,3 +17,10 @@ def user_status(request):
         "obj": user_obj
     }
     return render(request, 'user_status.html', context)
+
+
+def friend_request(request):
+    friend_obj, created = Friends.objects.get_or_create(user_id=1)
+    friend_obj.friend.add(User.objects.get(id=3))
+    friend_obj.save()
+    return JsonResponse("created", safe=False)

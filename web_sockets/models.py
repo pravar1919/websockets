@@ -23,3 +23,21 @@ class User(AbstractUser):
                 "id": self.id, "status": self.status}},
         )
         return super(User, self).save(*args, **kwargs)
+
+
+class Friends(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "pending", _("Pending")
+        ACCEPTED = "accepted", _("Accepted")
+        REJECTED = "rejected", _("Rejected")
+
+    user = models.ForeignKey(
+        User, related_name="user_friends", on_delete=models.CASCADE)
+    friend = models.ManyToManyField(User, blank=True, related_name="friends")
+    status = models.CharField(
+        max_length=20, choices=Status, default=Status.PENDING)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs) -> None:
+        return super(Friends, self).save(*args, **kwargs)
