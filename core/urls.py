@@ -21,4 +21,5 @@ urlpatterns = [
     path("", include("post.urls")),
     path("admin/", admin.site.urls),
     path("socket/", include("web_sockets.urls")),
+    path("chat/", include("chat.urls")),
 ]

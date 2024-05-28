@@ -2,8 +2,10 @@ from channels.consumer import AsyncConsumer
 import json
 from channels.db import database_sync_to_async
 
+
 class UserChat(AsyncConsumer):
     async def websocket_connect(self, event):
+        print(self.scope['url_route']['kwargs']['name'])
         await self.channel_layer.group_add(
             "chat",
             self.channel_name

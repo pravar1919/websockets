@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+<script>
+    const chatWs = new WebSocket("ws://localhost:8000/ws/as/chat/{{name}}/")
+    // const chatWs = new WebSocket("ws://" +  window.locaion.host + "/ws/as/chat/" + "{{name}}/")
+    chatWs.onopen = function (e) {
+        console.log("The chat connection was setup successfully !", e);
+        // chatWs.send(JSON.stringify({user_id : "{{request.user.id}}", "status":"online"}));
+    };
+    window.addEventListener('beforeunload', function () {
+        // chatWs.send(JSON.stringify({user_id : "{{request.user.id}}", "status":"offline"}));
+    });
+    chatWs.onclose = function (e) {
+        console.log("Something unexpected happened !", e);
+    };
+    chatWs.onmessage = function (e) {
+        // const data = JSON.parse(e.data);
+        console.log(e);
+    };
+</script>
+{% endblock %}
