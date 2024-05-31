@@ -1,6 +1,6 @@
 from channels.consumer import AsyncConsumer
+from channels.exceptions import StopConsumer
 import json
-from channels.db import database_sync_to_async
 
 
 class UserChat(AsyncConsumer):
@@ -27,7 +27,8 @@ class UserChat(AsyncConsumer):
 
     async def chat_message(self, event):
         print("event..................", event)
-        await self.send({"type": "websocket.send",  "text": json.dumps(event)})
+        await self.send({"type": "websocket.send",  "text": event['message']['text']})
 
     async def websocket_disconnect(self, event):
         await self.channel_layer.group_discard("chat", self.channel_name)
+        # raise StopConsumer()

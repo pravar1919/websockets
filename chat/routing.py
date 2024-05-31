@@ -4,5 +4,5 @@ from .consumer import UserChat
 # Here, "" is routing to the URL EchoConsumer which
 # will handle the chat functionality.
 chat_urlpatterns = [
-    path("ws/as/chat/<str:name>/", UserChat.as_asgi()),
+    path("chat/ws/as/<str:name>/", UserChat.as_asgi()),
 ]

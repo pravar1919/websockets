@@ -32,4 +32,4 @@ class PostLikeNotification(AsyncConsumer):
 
     async def websocket_disconnect(self, event):
         await self.channel_layer.group_discard("user-like-post-notification", self.channel_name)
-        raise StopConsumer()
+        # raise StopConsumer()

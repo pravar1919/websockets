@@ -65,7 +65,7 @@
         }
     </script>
     <script>
-        const wspost = new WebSocket('ws://localhost:8000/ws/as/post-like/')
+        const wspost = new WebSocket(`ws://${window.location.host}/ws/as/post-like/`)
     
         wspost.onopen = function (e) {
             console.log("The connection was setup successfully !", e);
@@ -84,7 +84,7 @@
         };
     </script>
     <script>
-        const ws = new WebSocket("ws://localhost:8000/ws/as/")
+        const ws = new WebSocket(`ws://${window.location.host}/ws/as/test/`)
 
         ws.onopen = function (e) {
             console.log("The connection was setup successfully !", e);

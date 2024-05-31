@@ -1,4 +1,5 @@
 from channels.consumer import AsyncConsumer
+from channels.exceptions import StopConsumer
 import json
 from channels.db import database_sync_to_async
 from web_sockets.models import User
@@ -57,3 +58,4 @@ class UserStatus(AsyncConsumer):
 
     async def websocket_disconnect(self, event):
         await self.channel_layer.group_discard("user-status-notification", self.channel_name)
+        # raise StopConsumer()

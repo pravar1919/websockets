@@ -7,7 +7,7 @@
     </ul>
 
     <script>
-        const ws1 = new WebSocket('ws://localhost:8000/ws/as/status')
+        const ws1 = new WebSocket(`ws://${window.location.host}/ws/as/status`)
 
         ws1.onopen = function (e) {
             console.log("The connection was setup successfully !", e);
