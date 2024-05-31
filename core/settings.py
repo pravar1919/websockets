@@ -137,3 +137,4 @@ CHANNEL_LAYERS = {
         },
     },
 }
+# docker run -d --hostname my-rabbit -p 5672:15672 rabbitmq:3-management

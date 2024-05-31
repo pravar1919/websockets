@@ -1,5 +1,6 @@
 from channels.consumer import AsyncConsumer
 import json
+from channels.exceptions import StopConsumer
 from channels.db import database_sync_to_async
 from web_sockets.models import User
 
@@ -31,3 +32,4 @@ class PostLikeNotification(AsyncConsumer):
 
     async def websocket_disconnect(self, event):
         await self.channel_layer.group_discard("user-like-post-notification", self.channel_name)
+        raise StopConsumer()
