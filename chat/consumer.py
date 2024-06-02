@@ -2,6 +2,8 @@ from channels.consumer import AsyncConsumer
 from channels.exceptions import StopConsumer
 import json
 
+from utils import Publisher
+
 
 class UserChat(AsyncConsumer):
     async def websocket_connect(self, event):
@@ -27,6 +29,8 @@ class UserChat(AsyncConsumer):
 
     async def chat_message(self, event):
         print("event..................", event)
+        publisher = Publisher()
+        publisher.publish('add.chats', json.dumps(event))
         await self.send({"type": "websocket.send",  "text": event['message']['text']})
 
     async def websocket_disconnect(self, event):

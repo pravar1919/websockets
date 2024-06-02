@@ -39,9 +39,24 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    'django_celery_beat',
+    'django_celery_results',
+
+    "chat",
     "post",
     "web_sockets",
 ]
+
+# save Celery task results in Django's database
+CELERY_RESULT_BACKEND = "django-db"
+
+# This configures Redis as the datastore between Django + Celery
+# CELERY_BROKER_URL = "redis://localhost:6379"
+# if you out to use os.environ the config is:
+# CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_REDIS_URL', 'redis://localhost:6379')
+
+# this allows you to schedule items in the Dcompanyjango admin.
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -137,5 +152,4 @@ CHANNEL_LAYERS = {
         },
     },
 }
-# docker run -d --name my-rabbit -p 5672:5672 rabbitmq:3-management
 # docker run -d --name my-rabbit -p 15672:15672 -p 5672:5672 rabbitmq:3-management

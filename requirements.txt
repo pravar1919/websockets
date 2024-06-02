@@ -1,3 +1,6 @@
 Django==5.0.6
 channels[daphne]
 channels-redis
+django-celery-beat
+django-celery-results
+pika
