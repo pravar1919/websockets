@@ -30,7 +30,7 @@ class UserChat(AsyncConsumer):
     async def chat_message(self, event):
         print("event..................", event)
         publisher = Publisher()
-        publisher.publish('add.chats', json.dumps(event))
+        publisher.publish('add.chats', event['message']['text'])
         await self.send({"type": "websocket.send",  "text": event['message']['text']})
 
     async def websocket_disconnect(self, event):

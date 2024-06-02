@@ -1,14 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h4>Group Name:{{name}}</h4>
-<textarea id="chat_logs" rows="20" cols="50"></textarea
-><br />
-<input type="text" id="chat_input" /><br /><br />
-<button type="submit" id="chat_submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">Submit</button>
 
+{% for user in user_qs %}
+    {{user}}- {{chat_id}}
+{% endfor %}
+
+<h4>Group Name:{{name}}</h4>
+<textarea id="chat_logs" rows="20" cols="50">
+    {% for chat in chats %}
+        {{chat.sender}} : {{chat.content}}
+    {% endfor %}   
+</textarea
+><br />
+<form id="form-submit">
+    <input type="text" id="chat_input" />
+    <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">Submit</button>
+</form>
 <script>
-    let submit = document.getElementById("chat_submit");
+    let submit = document.getElementById("form-submit");
     let msg = document.getElementById("chat_input");
     let msgLogs = document.getElementById("chat_logs");
 
@@ -28,15 +38,17 @@
         // const data = JSON.parse(e.data);
         console.log(e);
         parsedData = JSON.parse(e.data);
-        console.log(parsedData);
+        console.log("parsed", parsedData);
         msgLogs.append(parsedData.user + " : " + parsedData.msg + "\n");
     };
-    submit.addEventListener("click", function (e) {
+    submit.addEventListener("submit", function (e) {
+        e.preventDefault()
         console.log(JSON.stringify(msg.value));
         chatWs.send(
             JSON.stringify({
                 msg: msg.value,
                 user: "{{request.user.username}}",
+                chat_id: "{{chat_id}}"
             })
         );
         msg.value = "";

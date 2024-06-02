@@ -4,6 +4,7 @@ import sys
 from celery import shared_task
 from celery.signals import worker_ready
 
+from chat.models import ChatGroup, Message
 from web_sockets.models import User
 
 
@@ -28,7 +29,10 @@ class Subscriber:
         print(type(body.decode()))
         data = json.loads(body.decode())
         print(data)
-        # User.objects.create(**data)
+        chat_id = ChatGroup.objects.get(id=data['chat_id'])
+        sender = User.objects.get(username=data['user'])
+        Message.objects.create(
+            chat_id=chat_id.id, content=data['msg'], sender=sender)
 
     def setup(self):
         channel = self.connection.channel()
